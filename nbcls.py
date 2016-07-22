@@ -30,13 +30,12 @@ class NaiveBayesClassifier:
 
 		self.result = {}
 
-		# self.validate(validating_path, mode)
+		self.validate(validating_path, mode)
 
 	def _count(self, tokens, prop_name, class_name = None):
 		count_prop_name = prop_name+'_count'
 
 		prop = self.__dict__[prop_name]
-		prop_count = self.__dict__[count_prop_name]
 
 		if class_name:
 			if not class_name in self.__dict__[prop_name]:
@@ -44,7 +43,9 @@ class NaiveBayesClassifier:
 				self.__dict__[count_prop_name][class_name] = 0
 
 			prop = self.__dict__[prop_name][class_name]
-			prop_count = self.__dict__[count_prop_name][class_name]
+			self.__dict__[count_prop_name][class_name] += len(tokens)
+		else:
+			self.__dict__[count_prop_name] += 1
 
 		for token in tokens:
 			if token in prop:
@@ -52,14 +53,10 @@ class NaiveBayesClassifier:
 			else:
 				prop[token] = 1
 
-			prop_count += 1
-
 		if class_name:
 			self.__dict__[prop_name][class_name] = prop
-			self.__dict__[count_prop_name][class_name] = prop_count
 		else:
 			self.__dict__[prop_name] = prop
-			self.__dict__[count_prop_name] = prop_count
 
 
 	def _get_tokens(self, data, mode):
@@ -75,17 +72,24 @@ class NaiveBayesClassifier:
 		return (question_tokens, answer_tokens)
 
 	def _get_term_prob(self, terms, prop_name, class_name):
+		if not class_name in self.__dict__[prop_name]:
+			return 0
+
 		count_prop_name = prop_name+'_count'
 		p = 1
+		hasTerms = False
+		print terms
+		print self.__dict__[count_prop_name][class_name]
+		print self.__dict__[prop_name][class_name]
 
 		for term in terms:
 			if term in self.__dict__[prop_name][class_name]:
-				p *= self.__dict__[prop_name][class_name][term] / self.__dict__[count_prop_name][class_name][term]
+				hasTerms = True
+				p *= self.__dict__[prop_name][class_name][term] * 1.0 / self.__dict__[count_prop_name][class_name]
+		if hasTerms:
+			return p
 
-		if p == 1: # term not in training set
-			return 0
-
-		return p
+		return 0
 
 	def train(self, training_path, mode):
 		data = [{"category": "HISTORY",
@@ -112,7 +116,7 @@ class NaiveBayesClassifier:
 			if (answer_tokens):
 				self._count(answer_tokens, 'answer_terms', question["category"])
 
-		print self.__dict__
+		# print self.__dict__
 
 	def validate(self, validating_path, mode):
 		data = [{"category": "HISTORY",
@@ -136,7 +140,7 @@ class NaiveBayesClassifier:
 			for class_name, count in self.classes.iteritems():
 
 				# p(class)
-				class_prob[class_name] = count / self.classes_count
+				class_prob[class_name] = count * 1.0 / self.classes_count
 
 				# p(term1 | class) * p(term2 | class) * ...
 				(question_tokens, answer_tokens) = self._get_tokens(question, mode)
@@ -145,7 +149,7 @@ class NaiveBayesClassifier:
 				if (answer_tokens):
 					class_prob[class_name] *= self._get_term_prob(answer_tokens, 'question_terms', class_name)
 
-				print sorted(class_prob, key=class_prob.get)
+			print class_prob
 
 
 def main():
