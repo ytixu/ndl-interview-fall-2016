@@ -1,3 +1,6 @@
+import operator
+import json
+
 # String parsing helper functions
 
 def char_filter(strr):
@@ -18,7 +21,7 @@ WITH_ANSWER_SEPERATED = 2
 
 class NaiveBayesClassifier:
 
-	def __init__(self, training_path, validating_path, mode=WITHOUT_ANSWER):
+	def __init__(self, training_filepath, validating_filepath, mode=WITHOUT_ANSWER):
 		self.classes = {}
 		self.classes_count = 0
 		self.question_terms = {}
@@ -26,14 +29,14 @@ class NaiveBayesClassifier:
 		self.answer_terms = {}
 		self.answer_terms_count = {}
 
-		self.train(training_path, mode)
+		self.train(training_filepath, mode)
 
 		self.result = {}
 
-		self.validate(validating_path, mode)
+		self.validate(validating_filepath, mode)
 
 	def _count(self, tokens, prop_name, class_name = None):
-		count_prop_name = prop_name+'_count'
+		count_prop_name = prop_name+"_count"
 
 		prop = self.__dict__[prop_name]
 
@@ -75,81 +78,62 @@ class NaiveBayesClassifier:
 		if not class_name in self.__dict__[prop_name]:
 			return 0
 
-		count_prop_name = prop_name+'_count'
+		count_prop_name = prop_name+"_count"
 		p = 1
-		hasTerms = False
-		print terms
-		print self.__dict__[count_prop_name][class_name]
-		print self.__dict__[prop_name][class_name]
 
 		for term in terms:
 			if term in self.__dict__[prop_name][class_name]:
-				hasTerms = True
 				p *= self.__dict__[prop_name][class_name][term] * 1.0 / self.__dict__[count_prop_name][class_name]
-		if hasTerms:
-			return p
+			else :
+				p *= 1.0 / (self.__dict__[count_prop_name][class_name] + 1)
 
-		return 0
+		return p
 
-	def train(self, training_path, mode):
-		data = [{"category": "HISTORY",
-			"air_date": "2004-12-31",
-			"question": "'For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory'",
-			"value": "$200",
-			"answer": "Copernicus",
-			"round": "Jeopardy!",
-			"show_number": "4680"},{"category": "ESPN's TOP 10 ALL-TIME ATHLETES",
-			"air_date": "2004-12-31",
-			"question": "'No. 2: 1912 Olympian; football star at Carlisle Indian School; 6 MLB seasons with the Reds, Giants & Braves'",
-			"value": "$200",
-			"answer": "Jim Thorpe",
-			"round": "Jeopardy!",
-			"show_number": "4680"}]
 
-		for question in data:
-			# get counts for the classes
-			self._count([question["category"]], 'classes')
+	def train(self, training_filepath, mode):
+		with (training_filepath) as data_file:
+			rawData = json.load(data_file)
 
-			# get counts for the terms
-			(question_tokens, answer_tokens) = self._get_tokens(question, mode)
-			self._count(question_tokens, 'question_terms', question["category"])
-			if (answer_tokens):
-				self._count(answer_tokens, 'answer_terms', question["category"])
+			for question in rawData:
+				# get counts for the classes
+				self._count([question["category"]], "classes")
 
-		# print self.__dict__
-
-	def validate(self, validating_path, mode):
-		data = [{"category": "HISTORY",
-			"air_date": "2004-12-31",
-			"question": "'For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory'",
-			"value": "$200",
-			"answer": "Copernicus",
-			"round": "Jeopardy!",
-			"show_number": "4680"},{"category": "ESPN's TOP 10 ALL-TIME ATHLETES",
-			"air_date": "2004-12-31",
-			"question": "'No. 2: 1912 Olympian; football star at Carlisle Indian School; 6 MLB seasons with the Reds, Giants & Braves'",
-			"value": "$200",
-			"answer": "Jim Thorpe",
-			"round": "Jeopardy!",
-			"show_number": "4680"}]
-
-		# argmax( p(class) * p(term1 | class) * p(term2 | class) * ...)
-
-		for question in data:
-			class_prob = {}
-			for class_name, count in self.classes.iteritems():
-
-				# p(class)
-				class_prob[class_name] = count * 1.0 / self.classes_count
-
-				# p(term1 | class) * p(term2 | class) * ...
+				# get counts for the terms
 				(question_tokens, answer_tokens) = self._get_tokens(question, mode)
-				class_prob[class_name] *= self._get_term_prob(question_tokens, 'question_terms', class_name)
-
+				self._count(question_tokens, "question_terms", question["category"])
 				if (answer_tokens):
-					class_prob[class_name] *= self._get_term_prob(answer_tokens, 'question_terms', class_name)
+					self._count(answer_tokens, "answer_terms", question["category"])
 
-			print class_prob
+			# print self.__dict__
+
+	def validate(self, validating_filepath, mode):
+		with (training_filepath) as data_file:
+			rawData = json.load(data_file)
+
+			# argmax( p(class) * p(term1 | class) * p(term2 | class) * ...)
+			for i, question in enumerate(rawData):
+				print("Q-%d" % (i))
+
+				class_prob = {}
+				for class_name, count in self.classes.iteritems():
+					# p(class)
+					class_prob[class_name] = count * 1.0 / self.classes_count
+
+					# p(term1 | class) * p(term2 | class) * ...
+					(question_tokens, answer_tokens) = self._get_tokens(question, mode)
+					class_prob[class_name] *= self._get_term_prob(question_tokens, "question_terms", class_name)
+
+					if (answer_tokens):
+						class_prob[class_name] *= self._get_term_prob(answer_tokens, "question_terms", class_name)
+
+				sorted_cls_prob = sorted(class_prob.items(), key=operator.itemgetter(1), reverse=True)
+				# print sorted_cls_prob
+
+				if sorted_cls_prob[0][0] == question["category"]:
+					print("Found correct class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+				else:
+					print("Correct class: %s, p = %e" % (question["category"], class_prob[question["category"]]))
+					print("Best class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
 
 
 def main():
