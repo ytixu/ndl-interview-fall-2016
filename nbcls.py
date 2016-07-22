@@ -91,10 +91,10 @@ class NaiveBayesClassifier:
 
 
 	def train(self, training_filepath, mode):
-		with (training_filepath) as data_file:
+		with open(training_filepath) as data_file:
 			rawData = json.load(data_file)
 
-			for question in rawData:
+			for i, question in enumerate(rawData):
 				# get counts for the classes
 				self._count([question["category"]], "classes")
 
@@ -104,10 +104,13 @@ class NaiveBayesClassifier:
 				if (answer_tokens):
 					self._count(answer_tokens, "answer_terms", question["category"])
 
-			# print self.__dict__
+				# if i % 100000 == 0:
+				# 	print i
+
+			# print self.classes
 
 	def validate(self, validating_filepath, mode):
-		with (training_filepath) as data_file:
+		with open(validating_filepath) as data_file:
 			rawData = json.load(data_file)
 
 			# argmax( p(class) * p(term1 | class) * p(term2 | class) * ...)
@@ -131,13 +134,16 @@ class NaiveBayesClassifier:
 
 				if sorted_cls_prob[0][0] == question["category"]:
 					print("Found correct class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
-				else:
-					print("Correct class: %s, p = %e" % (question["category"], class_prob[question["category"]]))
-					print("Best class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+				# else:
+					# if not question["category"] in class_prob:
+					# 	print("Correct class: %s not in training set" % (question["category"]))
+					# else :
+					# 	print("Correct class: %s, p = %e" % (question["category"], class_prob[question["category"]]))
+					# print("Best class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
 
 
 def main():
-	NaiveBayesClassifier("", "")
+	NaiveBayesClassifier("./JEOPARDY_QUESTIONS.json", "./JEOPARDY_QUESTIONS.json")
 
 if __name__ == "__main__": main()
 
