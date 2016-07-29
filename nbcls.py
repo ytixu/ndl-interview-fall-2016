@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import json
 import operator
 import sys, getopt
@@ -109,6 +111,7 @@ class NaiveBayesClassifier:
 				# 	print i
 
 		# print self.__dict__
+		print sorted(self.classes.items(), key=operator.itemgetter(1), reverse=True)
 
 	def validate(self, validating_filepath, mode):
 		total_entries = 0
