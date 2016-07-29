@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Interview submitssion 2016 (Yi Tian Xu)</title>
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+		  MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "AMS"} } });
+		</script>
+		<script type="text/javascript"
+		  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+		</script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+		<style>
+			body {
+				margin: 10%;
+				font-size: 16pt;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+		</style>
+	</head>
+
+
+	<body>
+		<center>
+			<h1>Jeopardy! Questions Classifier</h1>
+			by Yi Tian Xu
+		</center>
+
+		<h2>Method Owerview</h2>
+
+		<p>In this implementation, I used Naive Bayes Classifier that computes the maximum likelihood of a Jeopardy question-answer pair based in the words that it contains. I also used cross-validation (70% for training and 30% for validation) to test the performance of the classifier. I considered the following assumption:</p>
+		<ul>
+			<li>Some words may appear more often in a certain class of questions (e.g.: the word "olympian" may appear more often in questions about sport than food).</li>
+			<li>The words in the answers of the questions may appear in other questions of the same class.</li>
+		</ul>
+		<p>The validity of the second assuption may be unclear, thus I decided to compare the performance of the classifier between three different variations for analyzing the data:</p>
+		<ol>
+			<li>Only considering the words in the questions.</li>
+			<li>Considering both the words in the answers and in the questions, and threat all words in the as same.</li>
+			<li>Considering both the words in the answers and in the questions, but threat in different ways.</li>
+		</ol>
+		<p>The computation of the maximum likelihood of Jeopardy question-answer pair is of the following.</p>
+		<center>
+			\begin{equation} \hat{y} = \max_{c \in C} p(c)\prod_{w \in y_w}p(w|c) \end{equation}
+		</center>
+		<p>where $C$ is the set of all classes seen in the training set, $y_w$ is the set of words given in a Jeopardy question-answer pair.</p>
+		<p>The conditional probability of observing a word $w$ given a class $c$ is learned from the training set and is computed by the following.</p>
+		<center>
+			\begin{equation} p(w|c) = \begin{cases}
+					\frac{\mbox{number of occurence of } w}{|W_c|} & \mbox{if } w \in W_c\\
+					\frac{1}{|W_c| + e} & \mbox{otherwise}\\
+				\end{cases}\end{equation}
+		</center>
+		<p>where $W_c$ is the set of all observed words in the training set for a class $c$, and $e$ is a large constant. For convinience, $e = |C|$ in the implementation as I saw that the number of classes is around 2000. This gurantees that the probability of a non-observed word given a class is never zero.</p>
+
+		<p>For the first variation, $W_c$ contains only the words in the questions in class $c$. For the second variation, $W_c$ contains both the words in the questions and in the answers. Finally for the third variation, the words in the answer is grouped in their own set ($W_c'$) and the maximum likelihood is computed as the following</p>
+		<center>
+			\begin{equation} \hat{y} = \max_{c \in C} p(c)\prod_{w \in y_w}p(w|c)\prod_{w' \in y_w'}p(w'|c) \end{equation}
+		</center>
+		<p>where $y_w'$ is the set of words given in the answer of a Jeopardy question-answer pair. $p(w'|c)$ is computed in a similar manner than $p(w|c)$.</p>
+
+		<h2>Performance</h2>
+
+
+		<h2>Conclusion</h2>
+	</body>
+</html>
