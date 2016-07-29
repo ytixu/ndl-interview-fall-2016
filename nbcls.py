@@ -111,11 +111,15 @@ class NaiveBayesClassifier:
 		# print self.__dict__
 
 	def validate(self, validating_filepath, mode):
+		total_entries = 0
+		correct_entries = 0
+
 		with open(validating_filepath) as data_file:
 			raw_data = json.load(data_file)
 
 			# argmax( p(class) * p(term1 | class) * p(term2 | class) * ...)
 			for i, question in enumerate(raw_data):
+				total_entries = i
 				print("Q-%d" % (i))
 
 				class_prob = {}
@@ -135,12 +139,17 @@ class NaiveBayesClassifier:
 
 				if sorted_cls_prob[0][0] == question["category"]:
 					print("\033[92m Found correct class: %s, p = %e \033[0m" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+					correct_entries += 1
 				else:
 					if not question["category"] in class_prob:
 						print("Correct class: %s not in training set" % (question["category"]))
 					else :
 						print("Correct class: %s, p = %e" % (question["category"], class_prob[question["category"]]))
 					print("Best class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+
+		print("\033[92m Validation set: %d \033[0m" % (total_entries))
+		print("\033[92m Total Matched Entries: %d \033[0m" % (correct_entries))
+		print("\033[92m Convergence %f \033[0m" % (correct_entries*1.0/total_entries))
 
 
 
