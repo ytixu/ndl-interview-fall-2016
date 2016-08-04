@@ -141,14 +141,14 @@ class NaiveBayesClassifier:
 				# print sorted_cls_prob
 
 				if sorted_cls_prob[0][0] == question["category"]:
-					print("\033[92m Found correct class: %s, p = %e \033[0m" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+					print("\033[92m Found correct class: %s, p = %e \033[0m" % (sorted_cls_prob[0][0].encode('utf-8'), sorted_cls_prob[0][1]))
 					correct_entries += 1
 				else:
 					if not question["category"] in class_prob:
-						print("Correct class: %s not in training set" % (question["category"]))
+						print("Correct class: %s not in training set" % (question["category"].encode('utf-8')))
 					else :
-						print("Correct class: %s, p = %e" % (question["category"], class_prob[question["category"]]))
-					print("Best class: %s, p = %e" % (sorted_cls_prob[0][0], sorted_cls_prob[0][1]))
+						print("Correct class: %s, p = %e" % (question["category"].encode('utf-8'), class_prob[question["category"]]))
+					print("Best class: %s, p = %e" % (sorted_cls_prob[0][0].encode('utf-8'), sorted_cls_prob[0][1]))
 
 		print("\033[92m Validation set: %d \033[0m" % (total_entries))
 		print("\033[92m Total Matched Entries: %d \033[0m" % (correct_entries))
