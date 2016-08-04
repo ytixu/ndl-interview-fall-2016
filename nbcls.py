@@ -110,8 +110,17 @@ class NaiveBayesClassifier:
 				# if i % 100000 == 0:
 				# 	print i
 
-		# print self.__dict__
-		print sorted(self.classes.items(), key=operator.itemgetter(1), reverse=True)
+		print('Total classes: %d' % (self.classes_count))
+		# for className, count in sorted(self.classes.items(), key=operator.itemgetter(1), reverse=True):
+			# print('  %d %s' % (count, className.encode('utf-8')))
+			# print('    %d question terms' % (self.question_terms_count[className]))
+
+		# 	for term, count in sorted(self.question_terms[className].items(), key=operator.itemgetter(1), reverse=True):
+		# 		print('      %d %s' % (count, term.encode('utf-8')))
+
+			# print('    %d answer terms' % (self.answer_terms_count[className]))
+		# 	for term, count in sorted(self.answer_terms[className].items(), key=operator.itemgetter(1), reverse=True):
+		# 		print('      %d %s' % (count, term.encode('utf-8')))
 
 	def validate(self, validating_filepath, mode):
 		total_entries = 0
@@ -236,4 +245,3 @@ def main(argv):
 
 
 if __name__ == "__main__": main(sys.argv[1:])
-
