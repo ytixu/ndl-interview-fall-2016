@@ -30,7 +30,7 @@
 
 		<h2>Method Owerview</h2>
 
-		<p>In this implementation, I used Naive Bayes Classifier that computes the maximum likelihood of a Jeopardy question-answer pair based in the words that it contains. I also used cross-validation (70% for training and 30% for validation) to test the performance of the classifier. I considered the following assumption:</p>
+		<p>In this implementation, I used Naive Bayes Classifier that computes the maximum likelihood of a Jeopardy question-answer pair based in the words that it contains. I considered the following assumption:</p>
 		<ul>
 			<li>Some words may appear more often in a certain class of questions (e.g.: the word "olympian" may appear more often in questions about sport than food).</li>
 			<li>The words in the answers of the questions may appear in other questions of the same class.</li>
@@ -53,7 +53,7 @@
 					\frac{1}{|W_c| + e} & \mbox{otherwise}\\
 				\end{cases}\end{equation}
 		</center>
-		<p>where $W_c$ is the set of all observed words in the training set for a class $c$, and $e$ is a large constant. For convinience, $e = |C|$ in the implementation as I saw that the number of classes is around 2000. This gurantees that the probability of a non-observed word given a class is never zero.</p>
+		<p>where $W_c$ is the set of all observed words in the training set for a class $c$, and $e$ is a large constant. (For convinience, $e = |C|$ in the implementation as I saw that the number of classes in the training set for 70% training and 30% validation is around 150000.) This gurantees that the probability of a non-observed word given a class is never zero.</p>
 
 		<p>For the first variation, $W_c$ contains only the words in the questions in class $c$. For the second variation, $W_c$ contains both the words in the questions and in the answers. Finally for the third variation, the words in the answer is grouped in their own set ($W_c'$) and the maximum likelihood is computed as the following</p>
 		<center>
@@ -62,7 +62,41 @@
 		<p>where $y_w'$ is the set of words given in the answer of a Jeopardy question-answer pair. $p(w'|c)$ is computed in a similar manner than $p(w|c)$.</p>
 
 		<h2>Performance</h2>
+		<p>I also used cross-validation (70% for training and 30% for validation) to test the performance of the classifier. The classifier took between 2 to 3 days to run over all three variations on my computer (4G RAM and Intel i5 CPU at 3.2Gz). The same training and validation set were used for all the variations. The result is as what follows.</p>
+		<br />
+		<br />
+		<strong>Number of classes seen in training set</strong>: 151851 <br />
+		<strong>Number of entries in validation set</strong>: 65078
+		<br />
+		<br />
+		<center>
+		<table cellpadding="10">
+			<tr align="left"  style="background-color:#efefef;">
+				<th>Variation</th>
+				<th>Matched entries</th>
+				<th>Convergence</th>
+			</tr>
+			<tr>
+				<td>Question only<br />(varation 1)</td>
+				<td>2005</td>
+				<td>0.030809</td>
+			</tr>
+			<tr>
+				<td>Question + answer<br />(varation 2)</td>
+				<td>3572</td>
+				<td>0.054888</td>
+			</tr>
+			<tr>
+				<td>Question and answer seperated<br />(varation 3)</td>
+				<td>3283</td>
+				<td>0.050447</td>
+			</tr>
+		</table>
+		</center>
 
+		<p>We see that adding the answer improves the convergence. In particular, variation 2 has the best preformance in the experiment. This confirms that it's very possible that the answer terms may be found in another question of the same classe and vice-versa. As it was observe in the output, for example, in the class "FOOTBALL", the term "football" is found 7 times in the questions and 1 time in the answers of the training set.</p>
+
+		<p>In the case of variation 3, since it doesn't
 
 		<h2>Conclusion</h2>
 	</body>
