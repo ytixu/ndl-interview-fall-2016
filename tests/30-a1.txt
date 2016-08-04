@@ -1,0 +1,4 @@
+ Found correct class: WORLD GEOGRAPHY, p = 9.460580e-52
+ Validation set: 65078
+ Total Matched Entries: 3572
+ Convergence 0.054888
