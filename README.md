@@ -29,7 +29,7 @@ makefile
 
 `test/temp.training.json` and `test/temp.validation.json` are the files that I used to do the experiment.
 
-In `test/training_result/`, I dump the data from the training set after the classifer trained itself. 'training_result_classes.txt' contains counts for each class. The other files contains counts for each terms (as the original file was big, I split it into smaller files).
+In `test/training_result/`, I dump the data from the training set after the classifier trained itself. 'training_result_classes.txt' contains counts for each class. The other files contains counts for each terms (as the original file was big, I split it into smaller files).
 
 'test/30-a0.txt' is the result for Variation 0 with 30% validation set.
 
@@ -58,6 +58,6 @@ nbcls.py -t <data file> -p <portion for training set (%)> -a <variation mode>
 Variation mode:
 0 - Without answer (default)
 1 - With answer mixed with question
-2 - With answer as seperate parameter
+2 - With answer as separate parameter
 
 ```
