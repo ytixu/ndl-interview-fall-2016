@@ -200,7 +200,7 @@ def show_help_and_exit(message):
 	print "Variation mode:"
 	print "0 - Without answer (default)"
 	print "1 - With answer mixed with question"
-	print "2 - With answer as seperate parameter"
+	print "2 - With answer as separate parameter"
 	sys.exit(0)
 
 
