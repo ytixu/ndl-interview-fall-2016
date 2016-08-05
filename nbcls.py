@@ -111,14 +111,15 @@ class NaiveBayesClassifier:
 				# 	print i
 
 		print('Total classes: %d' % (self.classes_count))
+		# Uncomment this to print out the training result
 		# for className, count in sorted(self.classes.items(), key=operator.itemgetter(1), reverse=True):
-			# print('  %d %s' % (count, className.encode('utf-8')))
-			# print('    %d question terms' % (self.question_terms_count[className]))
+		# 	print('  %d %s' % (count, className.encode('utf-8')))
+		# 	print('    %d question terms' % (self.question_terms_count[className]))
 
 		# 	for term, count in sorted(self.question_terms[className].items(), key=operator.itemgetter(1), reverse=True):
 		# 		print('      %d %s' % (count, term.encode('utf-8')))
 
-			# print('    %d answer terms' % (self.answer_terms_count[className]))
+		# 	print('    %d answer terms' % (self.answer_terms_count[className]))
 		# 	for term, count in sorted(self.answer_terms[className].items(), key=operator.itemgetter(1), reverse=True):
 		# 		print('      %d %s' % (count, term.encode('utf-8')))
 
@@ -192,11 +193,11 @@ def split_file(filePath, p):
 
 def show_help_and_exit(message):
 	print message
-	print "nbcls.py -t <training file> -v <validation file> -a <answer mode>"
+	print "nbcls.py -t <training file> -v <validation file> -a <variation mode>"
 	print "OR"
-	print "nbcls.py -t <data file> -p <portion for training set (%)> -a <answer mode>"
+	print "nbcls.py -t <data file> -p <portion for training set (%)> -a <variation mode>"
 	print ""
-	print "Answer mode:"
+	print "Variation mode:"
 	print "0 - Without answer (default)"
 	print "1 - With answer mixed with question"
 	print "2 - With answer as seperate parameter"
