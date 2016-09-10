@@ -1,0 +1,14 @@
+a = 0
+Validation set: 65078
+Total Matched Entries: 2005
+Convergence 0.030809
+
+a = 1
+Validation set: 65078
+Total Matched Entries: 3572
+Convergence 0.054888
+
+a = 2
+Validation set: 65078
+Total Matched Entries: 3283
+Convergence 0.050447

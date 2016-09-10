@@ -1,35 +1,63 @@
-Thanks for your interest in joining the Network Dynamics Lab!  As part of the interview process,
-we ask each applicant to conduct a small data analysis project.  Our goal here is to understand
-more about how you approach research and your familiarity with various techniques and tools.
-That said, we hope this exercise will also be fun!
+###Naive Bayes Classifier for Jeopardy!
 
-# Task Description
-Your goal is to perform a classification task on Jeopardy questions (and answers)
-and share some interesting insight that comes out of it.  The dataset of questions
-was first [announced on Reddit](https://www.reddit.com/r/datasets/comments/1uyd0t/200000_jeopardy_questions_in_a_json_file/).
-For convenience, we have included it in this Github repository.
+This packages contains
 
-Maybe you build a classifier for question categories or answers mentioning world leaders.  The specific
-classification task you undertake is totally up to you.  What we want to see is:
+```
+nbcls.py
+report.html
+test/
+	|_ training_result/
+		|_training_result_classes.txt
+		|_training_result01.txt
+		|_...
+		|_training_result29.txt
+	|_30-a0.txt
+	|_30-a1.txt
+	|_30-a2.txt
+	|_overall.txt
+	|_temp.training.json
+	|_temp.validation.json
+makefile
+```
 
-  - a machine learning system (doesn't have to be fancy)
-  - an analysis of classifier performance
-  - a critical analysis of what the classifier or its output tells us about the underlying classes you were studying
 
-In terms of deliverables, please submit the following by email to [Derek](mailto:derek.ruths@mcgill.ca).
+####DESCRIPTION OF THE FILES
 
-  - all your source code
-  - a Makefile that will run your analysis from start to finish (you may assume that
-    the jeopardy data file, `JEOPARDY_QUESTIONS.json` is located in the directory
-    right above your submission directory)
-  - A short (about a page) discussion that (1) analyzes your classifier performance and
-    (2) reveals something new and interesting about the underlying classes you were studying
+'report.html' is the small write up.
 
-**Final note:** Your submission will be treated with complete confidentiality - it will not ever
-be shared with anyone beyond Derek and the NDL PhD students.  That said, please
-do not submit any confidential or sensitive information.
+'nbcls.py' is the classifier.
 
-**Final, final note:** While we hope you will take the project seriously, please don't
-spend too much time on it. If coding for the project is taking more than 4 hours, that's either
-a sign that you're being a bit too ambitious or that you need to spend more time building your core
-skillset (in which case, we'll look forward to your application in future years).
+`test/temp.training.json` and `test/temp.validation.json` are the files that I used to do the experiment.
+
+In `test/training_result/`, I dump the data from the training set after the classifier trained itself. 'training_result_classes.txt' contains counts for each class. The other files contains counts for each terms (as the original file was big, I split it into smaller files).
+
+'test/30-a0.txt' is the result for Variation 0 with 30% validation set.
+
+'test/30-a1.txt' is the result for Variation 1 with 30% validation set.
+
+'test/30-a2.txt' is the result for Variation 2 with 30% validation set.
+
+'test/overall.txt' stores the convergence for all the variations.
+
+
+####Manual Run
+The make runs the command
+```
+$ python nbcls.py -t "../JEOPARDY_QUESTIONS.json" -p 70 -a 2
+```
+Which assumes to split the data in file JEOPARDY_QUESTIONS.json into 30% validation and 70% training, and it uses variation 2.
+
+You can change this setting by referring to the information listed under the help command.
+```
+$ python nbcls.py -h
+
+nbcls.py -t <training file> -v <validation file> -a <variation mode>
+OR
+nbcls.py -t <data file> -p <portion for training set (%)> -a <variation mode>
+
+Variation mode:
+0 - Without answer (default)
+1 - With answer mixed with question
+2 - With answer as separate parameter
+
+```

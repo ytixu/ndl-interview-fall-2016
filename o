@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Interview submitssion 2016 (Yi Tian Xu)</title>
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+		  MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "AMS"} } });
+		</script>
+		<script type="text/javascript"
+		  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+		</script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+		<style>
+			body {
+				margin: 10%;
+				font-size: 16pt;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+		</style>
+	</head>
+
+
+	<body>
+		<center>
+			<h1>Jeopardy! Questions Classifier</h1>
+			by Yi Tian Xu
+		</center>
+
+		<h2>Method Overview</h2>
+
+		<p>In this implementation, I used Naive Bayes Classifier that computes the maximum likelihood of a Jeopardy question-answer pair based in the words that it contains. I considered the following assumption:</p>
+		<ul>
+			<li>Some words may appear more often in a certain class of questions (e.g.: the word "olympian" may appear more often in questions about sport than food).</li>
+			<li>The words in the answers of the questions may appear in other questions of the same class.</li>
+		</ul>
+		<p>The validity of the second assumption may be unclear, thus I decided to compare the performance of the classifier between three different variations for analyzing the data:</p>
+		<ol>
+			<li>Only considering the words in the questions.</li>
+			<li>Considering both the words in the answers and in the questions, and threat all words in the as same.</li>
+			<li>Considering both the words in the answers and in the questions, but threat in different ways.</li>
+		</ol>
+		<p>The computation of the maximum likelihood of Jeopardy question-answer pair is of the following (Scikit-learn 2014).</p>
+		<center>
+			\begin{equation} \hat{y} = \max_{c \in C} p(c)\prod_{w \in y_w}p(w|c) \end{equation}
+		</center>
+		<p>where $C$ is the set of all classes seen in the training set, $y_w$ is the set of words given in a Jeopardy question-answer pair.</p>
+		<p>The conditional probability of observing a word $w$ given a class $c$ is learned from the training set and is computed by the following.</p>
+		<center>
+			\begin{equation} p(w|c) = \begin{cases}
+					\frac{\mbox{number of occurence of } w}{|W_c|} & \mbox{if } w \in W_c\\
+					\frac{1}{|W_c| + e} & \mbox{otherwise}\\
+				\end{cases}\end{equation}
+		</center>
+		<p>where $W_c$ is the set of all observed words in the training set for a class $c$, and $e$ is a large constant. (For convenience, $e = |C|$ in the implementation as I saw that the number of classes in the training set for 70% training and 30% validation is around 150000.) This guarantees that the probability of a non-observed word given a class is never zero.</p>
+
+		<p>For the first variation, $W_c$ contains only the words in the questions in class $c$. For the second variation, $W_c$ contains both the words in the questions and in the answers. Finally for the third variation, the words in the answer is grouped in their own set ($W_c'$) and the maximum likelihood is computed as the following</p>
+		<center>
+			\begin{equation} \hat{y} = \max_{c \in C} p(c)\prod_{w \in y_w}p(w|c)\prod_{w' \in y_w'}p(w'|c) \end{equation}
+		</center>
+		<p>where $y_w'$ is the set of words given in the answer of a Jeopardy question-answer pair. $p(w'|c)$ is computed in a similar manner than $p(w|c)$.</p>
+
+		<h2>Result</h2>
+		<p>I used cross-validation (70% for training and 30% for validation) to test the performance of the classifier. The classifier took between 2 to 3 days to run over all three variations on my computer (4G RAM and Intel i5 CPU at 3.2Gz). The same training and validation set were used for all the variations. The result is shown in Table 1.</p>
+		<br />
+		<br />
+		<strong>Number of classes seen in training set</strong> ($|C|$): 151851  <br />
+		<strong>Number of entries in validation set</strong>: 65078
+		<br />
+		<br />
+		<center>
+		<table cellpadding="10">
+			<caption>Table 1: Experiment Result for the 3 Variations</caption>
+			<tr align="left" style="background-color:#efefef;">
+				<th>Variation</th>
+				<th>Matched entries</th>
+				<th>Convergence</th>
+			</tr>
+			<tr>
+				<td>Question only<br />(variation 1)</td>
+				<td>2005</td>
+				<td>0.030809</td>
+			</tr>
+			<tr>
+				<td>Question + answer<br />(variation 2)</td>
+				<td>3572</td>
+				<td>0.054888</td>
+			</tr>
+			<tr>
+				<td>Question and answer separated<br />(variation 3)</td>
+				<td>3283</td>
+				<td>0.050447</td>
+			</tr>
+		</table>
+		</center>
+
+		<p>We see that adding the answer improves the convergence. In particular, variation 2 has the best performance in the experiment. This confirms that it's very possible that the answer terms may be found in another question of the same class and vice-versa. As it was observe in the output, for example, in the class "FOOTBALL", the term "football" is found 7 times in the questions and 1 time in the answers of the training set (see Table 2).</p>
+
+		<center>
+		<table cellpadding="10">
+			<caption>Table 2: Some Counts for Class "FOOTBALL"<br />(31 question-answer pairs)</caption>
+			<tr style="background-color:#efefef;">
+				<th>Term</th>
+				<th>Question Term Count</th>
+				<th>Answer Term Count</th>
+			</tr>
+			<tr>
+				<td>the</td><td>47</td><td>4</td>
+			</tr>
+			<tr>
+				<td>of</td><td>22</td><td>0</td>
+			</tr>
+			<tr>
+				<td>this</td><td>21</td><td>0</td>
+			</tr>
+			<tr>
+				<td>a</td><td>13</td><td>1</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>football</td><td>7</td><td>1</td>
+			</tr>
+			<tr>
+				<td>played</td><td>3</td><td>0</td>
+			</tr>
+			<tr>
+				<td>plays</td><td>2</td><td>0</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>pittsburgh</td><td>2</td><td>1</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>league</td><td>1</td><td>1</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>miami</td><td>1</td><td>1</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>university</td><td>1</td><td>1</td>
+			</tr>
+			<tr style="background-color:#fee;">
+				<td>bears</td><td>1</td><td>1</td>
+			</tr>
+			<tr>
+				<td>an</td><td>1</td><td>0</td>
+			</tr>
+			<tr>
+				<td>play</td><td>1</td><td>0</td>
+			</tr>
+			<tr>
+				<td>playing</td><td>1</td><td>0</td>
+			</tr>
+			<tr>
+				<th colspan="3">...</th>
+			</tr>
+			<tr>
+				<th>Total</th><th>570</th><th>65</th>
+			</tr>
+		</table>
+		</center>
+
+		<p>For variation 3, it assumes that the terms in the questions are independent from the terms in the answers, which is most likely not the case. Therefore, its convergence is slightly lower compared to variation 2.</p>
+
+		<h2>Improvement and Conclusion</h2>
+		<p>Overall, we see that in the case when we assume correlation between question and answer terms, the Naive Bayes Classifier appears to prefer better.</p>
+		<p>A potential problem in this experiment is that there are many variations of the same word but counted as different terms. As observed from Table 2, the terms "played", "plays" and "playing" might be better to be mapped as one term. Yet, if all variation of the word "play" is mapped to the term "play", a class about theater or cinema could use the term "play" as often as a class about football. In this case, it might be interesting to learn on the distribution of the word's variations rather than aggregating them. However, this possibility may not be case for prepositional words such as "a" and "an". It may be also interesting to define a set of stop words. Further experiments can be done to test on these ideas.</p>
+
+		<p>Another improvement that can be done on how the terms are grouped is to enhance the tokenization. The method I used in the experiment delimiters by space, and replaces comma and single quotes by space. Perhaps a more sophisticated tokenization includes parsing all punctuations and HTML tags.</p>
+
+		<p>Further study can also be done on the constant $e$ and verify if $|C|$ is a good choice for $e$.</p>
+
+		<h2>Reference</h2>
+		"1.9. Naive Bayes." Scikit-learn 0.17.1 Documentation, 2014. Web. 05 Aug. 2016. <a href="http://scikit-learn.org/stable/modules/naive_bayes.html" target="_blank">http://scikit-learn.org/stable/modules/naive_bayes.html</a>
+	</body>
+</html>
